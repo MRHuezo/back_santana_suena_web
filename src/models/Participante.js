@@ -8,8 +8,8 @@ const participanteSchema = new Schema(
             ref: 'sede' 
          },
         address: {
-            street: String
-            number: String
+            street: String,
+            number: String,
             postal_code: String
         },
         mail:{
@@ -17,9 +17,16 @@ const participanteSchema = new Schema(
             unique: true,
             trim: true,
         },
+        url_video:String,
         comprobante_pago: String,
         identificacion_personal: String,
-        telefono: String
+        telefono: String,
+        nombre_tema: String,
+        experiencia_artistica: String,
+        lugar_origen: String,
+        fecha_nacimiento: String,
+        genero: String
+      
     },{
         timestamps: true,
     }

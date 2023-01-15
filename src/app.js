@@ -11,6 +11,9 @@ app.use(cors());
 
 app.use(express.json());
 
+//Routes
+app.use('/api/sede', require('./routes/Sedes'));
+
 app.use(express.static('uploads'));
 
 module.exports = app;
