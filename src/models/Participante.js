@@ -6,7 +6,7 @@ const participanteSchema = new Schema(
         id_sede:{
             type: Schema.ObjectId,
             ref: 'sede' 
-         },
+        },
         address: {
             street: String,
             number: String,
