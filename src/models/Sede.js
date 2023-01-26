@@ -4,7 +4,7 @@ const sedeSchema = new Schema(
     {
         name: String,
         place: String,
-        imagen: String,
+        encargado:String,
         address: {
             street: String,
             number: String,
@@ -13,9 +13,6 @@ const sedeSchema = new Schema(
         telefono: String,
         fecha_evento_final: Date,
         edicion: String,
-        email: String,
-        user_login:String,
-        password:String,
         main: Boolean
         
     },{

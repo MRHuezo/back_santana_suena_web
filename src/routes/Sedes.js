@@ -6,7 +6,7 @@ const {
  } = require('../controllers/Sedes.controller.js');
 
 router.route('/crear').post(createSede);
-router.route('/edit').post(createSede);
+router.route('/edit').post(editSede);
 router.route('/consultarSedes').get(querySedes);
 
 
