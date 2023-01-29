@@ -26,7 +26,8 @@ UserCtrl.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const usuarioBase = await modelUsuario.findOne({ email: email });
+    const usuarioBase = await modelUsuario.findOne({ email: email }).populate("id_sede");
+
     if (usuarioBase) {
       if (!bcrypt.compareSync(password, usuarioBase.password)) {
         res.status(404).json({ message: "Usuario o contraseña incorrectos." });
@@ -34,12 +35,13 @@ UserCtrl.signIn = async (req, res) => {
         const token = jwt.sign(
           {
             email: usuarioBase.email,
+            user: usuarioBase.user,
             _id: usuarioBase._id,
             id_sede: usuarioBase.id_sede,
+            rol: usuarioBase.rol
           },
           process.env.AUTH_KEY
         );
-
         //token
         res.json({ token });
       }
