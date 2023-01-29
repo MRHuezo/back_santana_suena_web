@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const participanteSchema = new Schema(
+const competitorSchema = new Schema(
     {
         name: String,
         id_sede:{
@@ -12,7 +12,7 @@ const participanteSchema = new Schema(
             number: String,
             postal_code: String
         },
-        mail:{
+        email:{
             type: String,
             unique: true,
             trim: true,
@@ -33,4 +33,4 @@ const participanteSchema = new Schema(
 );
 
 
-module.exports = model('participante',sedeSchema);
+module.exports = model('competitor', competitorSchema);

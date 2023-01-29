@@ -13,7 +13,8 @@ app.use(express.json());
 
 //Routes
 app.use('/api/sede', require('./routes/Sedes'));
-app.use('/api/', require('./routes/Usuarios'));
+app.use('/api/competitor', require('./routes/Competitor'));
+app.use('/api/user', require('./routes/Users'));
 app.use(express.static('uploads'));
 
 module.exports = app;
