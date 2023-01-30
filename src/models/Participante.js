@@ -7,11 +7,7 @@ const participanteSchema = new Schema(
             type: Schema.ObjectId,
             ref: 'sede' 
         },
-        address: {
-            street: String,
-            number: String,
-            postal_code: String
-        },
+        address: String,
         mail:{
             type: String,
             unique: true,
@@ -25,12 +21,12 @@ const participanteSchema = new Schema(
         experiencia_artistica: String,
         lugar_origen: String,
         fecha_nacimiento: String,
-        genero: String
-      
+        genero: String,
+        aviso_privacidad: Boolean
     },{
         timestamps: true,
     }
 );
 
 
-module.exports = model('participante',sedeSchema);
+module.exports = model('participante',participanteSchema);

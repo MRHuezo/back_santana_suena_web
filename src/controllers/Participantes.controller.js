@@ -4,6 +4,8 @@ const modelParticipante = require("../models/Participante");
 SedeCtrl.createParticipante = async(req, res) => {
     try {
         const { data } = req.body;
+console.log(data)
+        return
         const participante = await new modelSede(participante);
         const participantes = await modelSede.find();
         res.status(200).json({ participantes: participantes });
