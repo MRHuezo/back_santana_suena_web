@@ -8,7 +8,7 @@ const competitorSchema = new Schema(
             ref: 'sede' 
         },
         address: String,
-        mail:{
+        email:{
             type: String,
             unique: true,
             trim: true,

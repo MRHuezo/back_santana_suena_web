@@ -47,6 +47,7 @@ SedeCtrl.querySedes = async(req, res) => {
         const sedes = await modelSede.find().sort({main: -1});
         res.status(200).json({ sedes: sedes });
     } catch (error) {
+        res.status(500).json({ message: error.message });
         console.log(error)
     }
 }

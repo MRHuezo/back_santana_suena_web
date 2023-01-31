@@ -71,10 +71,11 @@ const sendMailToCompetitorFirstStage = async (email)  =>{
 }
 ParticipanteCtrl.queryParticipantes = async(req, res) => {
     try {
-        const sedes = await modelSede.find();
-        res.status(200).json({ sedes: sedes });
+        const competitor = await modelCompetitor.find().populate("id_sede");
+        res.status(200).json({ competitor });
     } catch (error) {
         console.log(error)
+        res.status(500).json({ message: error.message });
     }
 }
 ParticipanteCtrl.seleccionarParticipante = async(req, res) => {
