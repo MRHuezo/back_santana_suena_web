@@ -14,15 +14,16 @@ const competitorSchema = new Schema(
             trim: true,
         },
         url_video:String,
-        comprobante_pago: String,
-        identificacion_personal: String,
-        telefono: String,
-        nombre_tema: String,
-        experiencia_artistica: String,
-        lugar_origen: String,
-        fecha_nacimiento: String,
-        genero: String,
-        aviso_privacidad: Boolean
+        pay: String,
+        personal_identify: String,
+        phone: String,
+        name_song: String,
+        artistic_experience: String,
+        from: String,
+        birthday: String,
+        genre: String,
+        status: String
+
     },{
         timestamps: true,
     }

@@ -48,21 +48,22 @@ UserCtrl.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const userBase = await modelUser.findOne({ email: email });
-    if (userBase) {
-      if (!bcrypt.compareSync(password, userBase.password)) {
+    const usuarioBase = await modelUser.findOne({ email: email }).populate("id_sede");
+
+    if (usuarioBase) {
+      if (!bcrypt.compareSync(password, usuarioBase.password)) {
         res.status(404).json({ message: "Usuario o contraseña incorrectos." });
-        return;
       } else {
         const token = jwt.sign(
           {
-            email: userBase.email,
-            _id: userBase._id,
-            id_sede: userBase.id_sede,
+            email: usuarioBase.email,
+            user: usuarioBase.user,
+            _id: usuarioBase._id,
+            id_sede: usuarioBase.id_sede,
+            rol: usuarioBase.rol
           },
           process.env.AUTH_KEY
         );
-
         //token
         res.json({ token });
       }
