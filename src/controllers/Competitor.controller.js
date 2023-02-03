@@ -2,16 +2,15 @@ const ParticipanteCtrl ={};
 const modelCompetitor = require("../models/Competitor");
 const sendEmail = require("../middleware/sendEmail");
 const {
-    awsUploadImage
+    upload,
   } = require("../middleware/awsFile");
 
 ParticipanteCtrl.createCompetitor = async(req, res) => {
     try {
-        console.log(req.body);
-        //const data = req.body;
-       
-        res.status(200).json({ resp: 'success', message: 'Tu registro se realizó correctamente, se te ha enviado un correo confirmando tu registro.' });
-        return;
+    
+        const data = req.body;
+        console.log(data)
+       /* 
         const data ={ 
             name: 'Fractal Estudio Mx',
             id_sede:'63d0c6050bb0de7af0a603f6',
@@ -27,7 +26,7 @@ ParticipanteCtrl.createCompetitor = async(req, res) => {
             birthday: '15/01/1990',
             genre: 'Masculino',
             status:'INSCRITO'
-        };  
+        };   */
       
         if(data.name === '' || data.id_sede === '' ||  data.address.street === ''||  data.address.number === ''
         ||  data.address.postal_code ==='' ||  data.email === '' ||  data.url_video === '' ||  data.pay.path === '' 
@@ -37,6 +36,21 @@ ParticipanteCtrl.createCompetitor = async(req, res) => {
             res.status(500).json({resp: 'error',message:'Todos los campos son necesarios.' });
             return;
         }
+      
+ 
+      /*  console.log(await upload(req, res, function (err) {
+        if (err) {
+          res.status(500).json({ message: err });
+        }
+    
+        return res.json({
+            success: true,
+            message: 'Image uploaded!'
+        }); */
+
+      })); 
+       res.status(500).json({resp: 'error',message:'Todos los campos son necesarios.' });
+       return;
         //const result = await awsUploadImage(data.pay, "pagos");
      
         //res.status(200).json({ resp: 'success', message: 'Tu registro se realizó correctamente, se te ha enviado un correo confirmando tu registro.' });
