@@ -10,6 +10,7 @@ const {
  } = require('../controllers/Competitor.controller.js');
 
 router.route("/create").post(uploadFileMultiple, createCompetitor);
+router.route("/get").get(queryParticipantes);
 router.route("/get/main/").get(queryParticipantes);
 router.route("/get/main/:competitor").get(queryParticipantes);
 router.route("/get/sede/:id_sede").get(queryParticipantes);
