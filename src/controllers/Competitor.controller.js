@@ -135,7 +135,7 @@ ParticipanteCtrl.queryParticipantes = async(req, res) => {
 }
 
 ParticipanteCtrl.accept = async(req, res) => {
-    try {
+    try { 
         const sedes = await modelSede.find();
         res.status(200).json({ sedes: sedes });
     } catch (error) {
