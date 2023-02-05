@@ -15,6 +15,7 @@ const competitorSchema = new Schema(
         },
         url_video:String,
         pay: String,
+        curp: String,
         pay_key:String,
         personal_identify: String,
         personal_identify_key: String,
