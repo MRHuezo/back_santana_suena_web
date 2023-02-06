@@ -1,5 +1,6 @@
 const {Router} = require('express');
 const router = Router();
+const auth = require('../middleware/auth');
 
 const { 
     uploadFileMultiple,
@@ -19,10 +20,10 @@ router.route("/get/main/:competitor").get(queryParticipantes);
 router.route("/get/sede/:id_sede").get(queryParticipantes);
 router.route("/get/:competitor/:id_sede").get(queryParticipantes);
 
-router.route('/edit/accept/').put(accept);
-router.route('/edit/decline/').put(decline);
-router.route('/edit/selectLocalFinalist/').put(selectToFinalSedeLocal);
-router.route('/edit/deselectToFinalSedeLocal/').put(deselectToFinalSedeLocal);
-router.route('/edit/sendMailTofinalists/').put(sendMailTofinalists);
+router.route('/edit/accept/').post(auth,accept);
+router.route('/edit/decline/').post(auth,decline);
+router.route('/edit/selectLocalFinalist/').post(auth,selectToFinalSedeLocal);
+router.route('/edit/deselectToFinalSedeLocal/').post(auth, deselectToFinalSedeLocal);
+router.route('/edit/sendMailTofinalists/').post(auth,sendMailTofinalists);
 
 module.exports = router;

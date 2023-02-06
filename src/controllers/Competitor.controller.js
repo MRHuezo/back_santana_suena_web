@@ -23,7 +23,7 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
   try {
     const { body, files } = req;
     const { pay, personal_identify, photo } = files;
-console.log(body)
+
     const data = {
       ...body,
       pay_key: pay[0].key,
@@ -196,9 +196,10 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
 
 ParticipanteCtrl.accept = async (req, res) => {
   try {
-   
-    const { id_competitor } = req;
-    const competitor = await modelCompetitor.findByIdAndUpdate({_id:id_competitor}, {status:'ACEPTADO'});
+ 
+   console.log(req.query);
+    const { id_competitor } = req.query;
+    const competitor = await modelCompetitor.findByIdAndUpdate({_id:id_competitor}, {status:'REVISADO'});
     
     res.status(200).json({ message: 'SE HA ACEPTADO A ESTE PARTICIPANTE. ' });
   } catch (error) {
@@ -208,17 +209,17 @@ ParticipanteCtrl.accept = async (req, res) => {
 
 ParticipanteCtrl.decline = async (req, res) => {
   try {
-    const { id_competitor, text_to_competitor } = req;
-
+    const { id_competitor, reason } = req.body;
     const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'RECHAZADO'});
-    sendMailToCompetitorDecline(email, text_to_competitor);
+   
+    sendMailToCompetitorDecline(competitor.email, reason);
     res.status(200).json({ message: 'SE HA RECHAZADO Y SE LE HA HECHO SABER AL PARTICIPANTE LOS MOTIVOS DEL RECHAZO.' }); 
 
   } catch (error) {
     console.log(error);
   }
 };
-const sendMailToCompetitorDecline= async (email, text_to_competitor) => {
+const sendMailToCompetitorDecline= async (email, reason) => {
     try {
      
       // <a href="${urlReset}">${urlReset}</a>
@@ -229,7 +230,7 @@ const sendMailToCompetitorDecline= async (email, text_to_competitor) => {
                     
                                     
                         <div style=" max-width: 550px; height: 100px;">
-                            <p style="padding: 10px 0px;">${text_to_competitor}</p>
+                            <p style="padding: 10px 0px;">${reason}</p>
                         </div>
                     </div>`;
     
