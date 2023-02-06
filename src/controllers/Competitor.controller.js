@@ -62,25 +62,35 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
     const existEmail = await modelCompetitor.find({ email: data.email });
 
     console.log({ existCurp, existEmail });
-    if (existCurp.length > 0) {
+    let objectUpd ={};
+    if (existCurp.length > 0 && existCurp.status !== "RECHAZADO") {
+      
       res.status(400).json({
         resp: "error",
         message: "Ya se registró un participante con esta CURP.",
       });
       return;
+    }else{
+        objectUpd = {curp: data.curp};
     }
-    if (existEmail.length > 0) {
+    if (existEmail.length > 0 && existCurp.status !== "RECHAZADO") {
       res.status(400).json({
         resp: "error",
         message: "Ya se registró un participante con este email.",
       });
       return;
+    }else{
+        objectUpd = {...objectUpd,email: data.email};
     }
 
+    if(existEmail.length > 0 && existCurp.status === "RECHAZADO" || existCurp.length > 0 && existCurp.status === "RECHAZADO"){
+        await modelCompetitor.findByIdAndUpdate(objectUpd,data);
+    }
+   
     const competitor = await new modelCompetitor(data);
 
     competitor.save();
-    sendMailToCompetitorFirstStage(data.email, data.name);
+    sendMailToCompetitorFirstStage(data.email, data.name, data.sede);
     //const participantes = await modelSede.find();
     res.status(200).json({
       resp: "success",
@@ -92,18 +102,36 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
-const sendMailToCompetitorFirstStage = async (email, name) => {
+const sendMailToCompetitorFirstStage = async (email, name, sede) => {
   try {
     console.log(email);
     // <a href="${urlReset}">${urlReset}</a>
     const htmlContentUser = `
                 <div>                    
                     <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA</h3>
-                    <h4 style="font-family: sans-serif; margin: 15px 15px;">${name} Hemos recibido tu inscripción pronto estaremos revisandolo. Pronto te comunicamos si eres seleccionado para la gran final. Mucha suerte.:</h4>
+                    <h4 style="font-family: sans-serif; margin: 15px 15px;">Estimado${name} Hemos recibido tu inscripción. Pronto estaremos revisando tus datos y el video que nos proporcionaste. 
+                    Pronto te comunicamos si eres seleccionado para la final la sede ${sede}. Felicidades por ser parte de SANTANA SUENA.</h4>
                  
 					             
                     <div style=" max-width: 550px; height: 100px;">
-                        <p style="padding: 10px 0px;">SANTANA SUENA.</p>
+                        <p style="padding: 10px 0px;">
+                            www.santanasuena.com
+                            Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
+                            Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz
+                            A.C.”
+                            Tel: 3173826632 Ext. 105 Autlán de Navarro, Jalisco, C.P. 48903.
+                            tiopatlanextli@hotmail.com
+                            NOTA IMPORTANTE: <b>TIOPA TLANEXTLI</b> es una Asociación Civil
+                            sin fines de lucro, la intención en este concurso es meramente
+                            de carácter cultural y en homenaje al benefactor y co-fundador
+                            de esta institución. No contamos con los derechos para manejo de
+                            la imagen, ni de la música de <b>CARLOS SANTANA</b>
+                            Este programa es sin fines políticos, ni afiliación partidista
+                            ni religiosa, es exclusivamente con fines culturales.
+                        </p>
+                        
+                            
+          
                     </div>
 				</div>`;
 
@@ -117,6 +145,7 @@ const sendMailToCompetitorFirstStage = async (email, name) => {
     console.log(error);
   }
 };
+
 ParticipanteCtrl.queryParticipantes = async (req, res) => {
   try {
     console.log(req.query);
@@ -167,8 +196,12 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
 
 ParticipanteCtrl.accept = async (req, res) => {
   try {
-    const sedes = await modelSede.find();
-    res.status(200).json({ sedes: sedes });
+ 
+   console.log(req.query);
+    const { id_competitor } = req.query;
+    const competitor = await modelCompetitor.findByIdAndUpdate({_id:id_competitor}, {status:'REVISADO'});
+    
+    res.status(200).json({ message: 'SE HA ACEPTADO A ESTE PARTICIPANTE. ' });
   } catch (error) {
     console.log(error);
   }
@@ -176,20 +209,109 @@ ParticipanteCtrl.accept = async (req, res) => {
 
 ParticipanteCtrl.decline = async (req, res) => {
   try {
-    const sedes = await modelSede.find();
-    res.status(200).json({ sedes: sedes });
+    const { id_competitor, reason } = req.body;
+    const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'RECHAZADO'});
+   
+    sendMailToCompetitorDecline(competitor.email, reason);
+    res.status(200).json({ message: 'SE HA RECHAZADO Y SE LE HA HECHO SABER AL PARTICIPANTE LOS MOTIVOS DEL RECHAZO.' }); 
+
   } catch (error) {
     console.log(error);
   }
+};
+const sendMailToCompetitorDecline= async (email, reason) => {
+    try {
+     
+      // <a href="${urlReset}">${urlReset}</a>
+        const htmlContentUser = `
+                    <div>                    
+                        <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA</h3>
+                        <h4 style="font-family: sans-serif; margin: 15px 15px;">Su inscripción fue rechazada</h4>
+                    
+                                    
+                        <div style=" max-width: 550px; height: 100px;">
+                            <p style="padding: 10px 0px;">${reason}</p>
+                        </div>
+                    </div>`;
+    
+        await sendEmail.sendEmail(
+            email,
+            "Santana Suena",
+            htmlContentUser,
+            "Santana Suena rechazo de inscripción"
+        );
+    } catch (error) {
+        console.log(error);
+    }
 };
 
-ParticipanteCtrl.seleccionarParticipante = async (req, res) => {
+ParticipanteCtrl.selectToFinalSedeLocal = async (req, res) => {
+    try {
+        const { id_competitor, text_to_competitor } = req;
+
+        const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'SELECCIONADO'});
+      res.status(200).json({ message: 'SE HA SELECCIONADO A ESTE PARTICPANTE COMO FINALISTA ' });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  ParticipanteCtrl.sendMailTofinalists= async (email, text_to_competitor) => {
+    try {
+     
+      // <a href="${urlReset}">${urlReset}</a>
+        const htmlContentUser = `
+                    <div>                    
+                        <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA</h3>
+                        <h4 style="font-family: sans-serif; margin: 15px 15px;"></h4>
+                    
+                                    
+                        <div style=" max-width: 550px; height: 100px;">
+                            <p style="padding: 10px 0px;">${text_to_competitor}</p>
+                        </div>
+                    </div>`;
+    
+        await sendEmail.sendEmail(
+            email,
+            "Santana Suena",
+            htmlContentUser,
+            "Santana Suena rechazo de inscripción"
+        );
+        res.status(200).json({ message: 'El correo se envió exitosamente.' });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+  ParticipanteCtrl.deselectToFinalSedeLocal = async (req, res) => {
+    try {
+        const { id_competitor, text_to_competitor } = req;
+     
+        const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'ACEPTADO'});
+      res.status(200).json({ message: 'EL PARTICIPANTE YA NO ES FINALISTA PARA SU SEDE ' });
+    } catch (error) {
+      console.log(error);
+    }
+  };  
+
+ParticipanteCtrl.selectToFinalAutlan = async (req, res) => {
   try {
-    const sedes = await modelSede.find();
-    res.status(200).json({ sedes: sedes });
+    const { id_competitor, text_to_competitor } = req;
+     
+    const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'ACEPTADO'});
+  res.status(200).json({ message: 'EL PARTICIPANTE YA NO ES FINALISTA PARA SU SEDE ' });
   } catch (error) {
     console.log(error);
   }
 };
+ParticipanteCtrl.deselectToFinalAutlan = async (req, res) => {
+    try {
+        const { id_competitor, text_to_competitor } = req;
+     
+        const competitor = await modelCompetitor.findByIdAndDelete({_id:id_competitor}, {status:'ACEPTADO'});
+      res.status(200).json({ message: 'EL PARTICIPANTE YA NO ES FINALISTA PARA SU SEDE ' });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 module.exports = ParticipanteCtrl;
