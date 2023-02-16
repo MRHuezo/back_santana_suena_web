@@ -5,17 +5,17 @@ const jwt = require("jsonwebtoken");
 
 UserCtrl.createUser = async (req, res) => {
   try {
-    const { data } = req.body;
+    //const { data } = req.body;
 //rol FIRST= el que va a poder selccionar finalistas, 
 //JUDGE = solo puede entrar a ver a los participantes,
-   /*  const data = {
-      email: "museodelrockmx@gmail.com",
-      user:"MEX_SEDEUSERGUAN",
-      password: "1Cb45CxrA35AB2",
-      id_sede: "63d0c684f9bec5453e78a104",
-      rol: 'FIRST'
+   const data = {
+      email: "tijuanaJuez@gmail.com",
+      user:"TIJ_SEDEUSERTWO",
+      password: "3WybDoSNjfjm8bW",
+      id_sede: "63d0c650dd0e867ac6996ffe",
+      rol: 'SECOND'
      
-    }; */
+    }; 
     const user = await new modelUser(data);
     bcrypt.hash(data.password, null, null, function (err, hash) {
       if (err) {
@@ -46,9 +46,9 @@ UserCtrl.createUser = async (req, res) => {
 
 UserCtrl.signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { usuario, password } = req.body;
 
-    const usuarioBase = await modelUser.findOne({ email: email }).populate("id_sede");
+    const usuarioBase = await modelUser.findOne({ user: usuario }).populate("id_sede");
 
     if (usuarioBase) {
       if (!bcrypt.compareSync(password, usuarioBase.password)) {

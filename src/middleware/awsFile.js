@@ -36,7 +36,9 @@ const configuracionMulter = {
       cb(null, { fieldName: "Testing_metadata" });
     },
     key: function (req, file, cb) {
-      cb(null, file.fieldname + "-" + Date.now().toString());
+     
+      const type = file.originalname.split(".");
+      cb(null, file.fieldname + "-" + Date.now().toString() + `.${type[1]}`);
     },
   }),
 };
