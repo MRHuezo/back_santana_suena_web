@@ -9,11 +9,11 @@ UserCtrl.createUser = async (req, res) => {
 //rol FIRST= el que va a poder selccionar finalistas, 
 //JUDGE = solo puede entrar a ver a los participantes,
    const data = {
-      email: "tijuanaJuez@gmail.com",
-      user:"TIJ_SEDEUSERTWO",
-      password: "3WybDoSNjfjm8bW",
-      id_sede: "63d0c650dd0e867ac6996ffe",
-      rol: 'SECOND'
+      email: "zapopan2@gmail.com",
+      user:"ZAP_SEDEUSERTWO",
+      password: "8Rtw3W2hjLzQC4ey",
+      id_sede: "63d0c6050bb0de7af0a603f6",
+      rol: 'FIRST'
      
     }; 
     const user = await new modelUser(data);

@@ -6,6 +6,7 @@ const { default: mongoose } = require("mongoose");
 
 ParticipanteCtrl.uploadFileMultiple = async (req, res, next) => {
   try {
+ 
     await uploadFileAws.uploadInscription(req, res, function (err) {
       if (err) {
         console.log(err);
@@ -18,7 +19,15 @@ ParticipanteCtrl.uploadFileMultiple = async (req, res, next) => {
     res.status(500).json({ message: error });
   }
 };
-
+const deleteImagesAws =  async(imagesKeys) =>{
+  try {
+     imagesKeys.forEach(async imageKey => {
+      await uploadFileAws.eliminarImagen(imageKey);
+    });
+  } catch (error) {
+    console.log(error)
+  }
+}
 ParticipanteCtrl.createCompetitor = async (req, res) => {
   try {
     const { body, files } = req;
@@ -61,19 +70,22 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
     const existCurp = await modelCompetitor.find({ curp: data.curp });
     const existEmail = await modelCompetitor.find({ email: data.email });
 
-    console.log({ existCurp, existEmail });
+    console.log({ existCurp, existEmail,  });
+    const keyImages = [pay[0].key,personal_identify[0].key,photo[0].key];
     let objectUpd ={};
     if (existCurp.length > 0 && existCurp.status !== "RECHAZADO") {
-      
+      deleteImagesAws(keyImages);
       res.status(400).json({
         resp: "error",
         message: "Ya se registró un participante con esta CURP.",
       });
+
       return;
     }else{
         objectUpd = {curp: data.curp};
     }
     if (existEmail.length > 0 && existCurp.status !== "RECHAZADO") {
+      deleteImagesAws(keyImages);
       res.status(400).json({
         resp: "error",
         message: "Ya se registró un participante con este email.",
@@ -200,7 +212,7 @@ ParticipanteCtrl.accept = async (req, res) => {
    console.log(req.query);
     const { id_competitor } = req.query;
     const competitor = await modelCompetitor.findByIdAndUpdate({_id:id_competitor}, {status:'REVISADO'});
-    
+    sendMailToCompetitorAccept(competitor.email, {});
     res.status(200).json({ message: 'SE HA ACEPTADO A ESTE PARTICIPANTE. ' });
   } catch (error) {
     console.log(error);
@@ -219,6 +231,56 @@ ParticipanteCtrl.decline = async (req, res) => {
     console.log(error);
   }
 };
+
+const sendMailToCompetitorAccept= async (email, sede) => {
+  try {
+   
+    // <a href="${urlReset}">${urlReset}</a>
+
+      const htmlContentUser = `
+                  <div>                    
+                      <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA</h3>
+                      <h4 style="font-family: sans-serif; margin: 15px 15px;">Su inscripción fue aceptada</h4>
+                  
+                                  
+                      <div style=" max-width: 550px; height: 100px;">
+                          <p style="padding: 10px 0px;">Ahora eres parte de el proceso de selección de 10 finalistas que estáran en la gran semifinal.
+                        
+                          </p>
+                          <p style="padding: 10px 0px;">Quédate pendiente pronto te notificamos si fuiste seleccionado, no te detengas sigue preparando el show.</p>
+                      </div>
+                      <div style=" max-width: 550px; ">
+                      <p style="padding: 10px 0px;">
+                          www.santanasuena.com
+                          Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
+                          Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz
+                          A.C.”
+                          Tel: 3173826632 Ext. 105 Autlán de Navarro, Jalisco, C.P. 48903.
+                          tiopatlanextli@hotmail.com
+                          NOTA IMPORTANTE: <b>TIOPA TLANEXTLI</b> es una Asociación Civil
+                          sin fines de lucro, la intención en este concurso es meramente
+                          de carácter cultural y en homenaje al benefactor y co-fundador
+                          de esta institución. No contamos con los derechos para manejo de
+                          la imagen, ni de la música de <b>CARLOS SANTANA</b>
+                          Este programa es sin fines políticos, ni afiliación partidista
+                          ni religiosa, es exclusivamente con fines culturales.
+                      </p>
+                      
+                          
+        
+                  </div>
+                  </div>`;
+  
+      await sendEmail.sendEmail(
+          email,
+          "Santana Suena",
+          htmlContentUser,
+          "Santana Suena inscripción aceptada"
+      );
+  } catch (error) {
+      console.log(error);
+  }
+};
 const sendMailToCompetitorDecline= async (email, reason) => {
     try {
      
@@ -232,6 +294,26 @@ const sendMailToCompetitorDecline= async (email, reason) => {
                         <div style=" max-width: 550px; height: 100px;">
                             <p style="padding: 10px 0px;">${reason}</p>
                         </div>
+                        <div style=" max-width: 550px; height: 100px;">
+                        <p style="padding: 10px 0px;">
+                            www.santanasuena.com
+                            Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
+                            Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz
+                            A.C.”
+                            Tel: 3173826632 Ext. 105 Autlán de Navarro, Jalisco, C.P. 48903.
+                            tiopatlanextli@hotmail.com
+                            NOTA IMPORTANTE: <b>TIOPA TLANEXTLI</b> es una Asociación Civil
+                            sin fines de lucro, la intención en este concurso es meramente
+                            de carácter cultural y en homenaje al benefactor y co-fundador
+                            de esta institución. No contamos con los derechos para manejo de
+                            la imagen, ni de la música de <b>CARLOS SANTANA</b>
+                            Este programa es sin fines políticos, ni afiliación partidista
+                            ni religiosa, es exclusivamente con fines culturales.
+                        </p>
+                        
+                            
+          
+                    </div>
                     </div>`;
     
         await sendEmail.sendEmail(
@@ -268,6 +350,23 @@ ParticipanteCtrl.selectToFinalSedeLocal = async (req, res) => {
                         <div style=" max-width: 550px; height: 100px;">
                             <p style="padding: 10px 0px;">${text_to_competitor}</p>
                         </div>
+                        <div style=" max-width: 550px; height: 100px;">
+                        <p style="padding: 10px 0px;">
+                            www.santanasuena.com
+                            Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
+                            Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz
+                            A.C.”
+                            Tel: 3173826632 Ext. 105 Autlán de Navarro, Jalisco, C.P. 48903.
+                            tiopatlanextli@hotmail.com
+                            NOTA IMPORTANTE: <b>TIOPA TLANEXTLI</b> es una Asociación Civil
+                            sin fines de lucro, la intención en este concurso es meramente
+                            de carácter cultural y en homenaje al benefactor y co-fundador
+                            de esta institución. No contamos con los derechos para manejo de
+                            la imagen, ni de la música de <b>CARLOS SANTANA</b>
+                            Este programa es sin fines políticos, ni afiliación partidista
+                            ni religiosa, es exclusivamente con fines culturales.
+                        </p>
+                    </div>
                     </div>`;
     
         await sendEmail.sendEmail(
