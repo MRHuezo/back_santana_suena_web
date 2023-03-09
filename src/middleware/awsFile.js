@@ -49,11 +49,11 @@ const configuracionMulterInFilter = {
     bucket: process.env.NAME_BUCKET_AMS,
     acl: "public-read",
     metadata: function (req, file, cb) {
-      console.log("metadata", file);
+      //console.log("metadata", file);
       cb(null, { fieldName: "Testing_metadata" });
     },
     key: function (req, file, cb) {
-      console.log("key", file);
+      //console.log("key", file);
       const type = file.originalname.split(".");
       cb(null, Date.now().toString() + `.${type[1]}`);
     },

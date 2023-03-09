@@ -5,7 +5,7 @@ const modelSede = require("../models/Sede");
 SedeCtrl.createSede = async(req, res) => {
     try {
         //const { data } = req.body;
-        console.log('createSede')
+      
         const data = {
             name: 'SEDE PRINCIPAL',
             place: 'AUTLAN DE NAVARRO',
