@@ -13,8 +13,8 @@ const sedeSchema = new Schema(
         telefono: String,
         fecha_evento_final: Date,
         edicion: String,
-        main: Boolean
-        
+        main: Boolean,
+        mail: String
     },{
         timestamps: true,
     }

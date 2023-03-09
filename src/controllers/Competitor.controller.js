@@ -1,5 +1,6 @@
 const ParticipanteCtrl = {};
 const modelCompetitor = require("../models/Competitor");
+const modelSede = require("../models/Sede");
 const sendEmail = require("../middleware/sendEmail");
 const uploadFileAws = require("../middleware/awsFile");
 const { default: mongoose } = require("mongoose");
@@ -66,11 +67,12 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
         .json({ resp: "error", message: "Todos los campos son necesarios." });
       return;
     }
+   
 
     const existCurp = await modelCompetitor.find({ curp: data.curp });
     const existEmail = await modelCompetitor.find({ email: data.email });
 
-    console.log({ existCurp, existEmail,  });
+   
     const keyImages = [pay[0].key,personal_identify[0].key,photo[0].key];
     let objectUpd ={};
     if (existCurp.length > 0 && existCurp.status !== "RECHAZADO") {
@@ -94,15 +96,21 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
     }else{
         objectUpd = {...objectUpd,email: data.email};
     }
+    
 
     if(existEmail.length > 0 && existCurp.status === "RECHAZADO" || existCurp.length > 0 && existCurp.status === "RECHAZADO"){
         await modelCompetitor.findByIdAndUpdate(objectUpd,data);
     }
-   
+    
+    
     const competitor = await new modelCompetitor(data);
 
     competitor.save();
-    sendMailToCompetitorFirstStage(data.email, data.name, data.sede);
+
+    const sede = await modelSede.findById(data.id_sede);
+
+    await sendMailToSedeNewRegisterCompetitor(sede.mail, data.name);
+    await sendMailToCompetitorFirstStage(data.email, data.name, data.sede);
     //const participantes = await modelSede.find();
     res.status(200).json({
       resp: "success",
@@ -112,6 +120,29 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
+  }
+};
+const sendMailToSedeNewRegisterCompetitor = async (emailSede, name) => {
+  try {
+ console.log(emailSede, name);
+    // <a href="${urlReset}">${urlReset}</a>
+    const htmlContentUser = `
+        <div>                    
+            <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA NUEVO REGISTRO DE COMPETIDOR</h3>
+            <h4 style="font-family: sans-serif; margin: 15px 15px;">Hay nuevo registro de competidor en tu sede con el siguiente nombre${name} </h4>
+
+            <a href="www.santanasuena.com">REVISAR </a>
+
+				</div>`;
+
+    await sendEmail.sendEmail(
+      emailSede,
+      "Santana Suena nueva inscripción de competidor",
+      htmlContentUser,
+      "Santana Suena"
+    );
+  } catch (error) {
+    console.log(error);
   }
 };
 const sendMailToCompetitorFirstStage = async (email, name, sede) => {
@@ -125,7 +156,7 @@ const sendMailToCompetitorFirstStage = async (email, name, sede) => {
                     Pronto te comunicamos si eres seleccionado para la final la sede ${sede}. Felicidades por ser parte de SANTANA SUENA.</h4>
                  
 					             
-                    <div style=" max-width: 550px; height: 100px;">
+                    <div style=" max-width: 550px;">
                         <p style="padding: 10px 0px;">
                             www.santanasuena.com
                             Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
@@ -160,7 +191,7 @@ const sendMailToCompetitorFirstStage = async (email, name, sede) => {
 
 ParticipanteCtrl.queryParticipantes = async (req, res) => {
   try {
-    console.log(req.query);
+    
     const { main, id_sede, search } = req.query;
 
     let $match = {
@@ -197,7 +228,7 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
       path: "id_sede",
     });
 
-    console.log(competitor);
+    
 
     res.status(200).json({ competitor });
   } catch (error) {
@@ -209,7 +240,7 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
 ParticipanteCtrl.accept = async (req, res) => {
   try {
  
-   console.log(req.query);
+   
     const { id_competitor } = req.query;
     const competitor = await modelCompetitor.findByIdAndUpdate({_id:id_competitor}, {status:'REVISADO'});
     sendMailToCompetitorAccept(competitor.email, {});
