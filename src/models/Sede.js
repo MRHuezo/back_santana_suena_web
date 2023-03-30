@@ -14,7 +14,8 @@ const sedeSchema = new Schema(
         fecha_evento_final: Date,
         edicion: String,
         main: Boolean,
-        mail: String
+        mail: String,
+        id_name: String
     },{
         timestamps: true,
     }
