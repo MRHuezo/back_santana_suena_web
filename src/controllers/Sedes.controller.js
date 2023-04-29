@@ -56,7 +56,7 @@ SedeCtrl.queryGetSedeCompetitors = async(req, res) => {
     try {
         const {id_name} = req.params;
         const sede = await modelSede.findOne({id_name});
-        const competitors = await modelCompetitor.find({id_sede: sede._id});
+        const competitors = await modelCompetitor.find({id_sede: sede._id, status:'REVISADO'});
         res.status(200).json({sede, competitors});
     } catch (error) {
         res.status(500).json({ message: error.message });

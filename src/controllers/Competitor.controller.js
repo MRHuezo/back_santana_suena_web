@@ -122,6 +122,16 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
+ParticipanteCtrl.pruebaEmail = async (res) => {
+  try {
+  console.log('fdfd')
+    sendMailToCompetitorFirstStage('fractalestudiomx@gmail.com', 'Martín Rivera')
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+};
 const sendMailToSedeNewRegisterCompetitor = async (emailSede, name) => {
   try {
  console.log(emailSede, name);
@@ -150,33 +160,86 @@ const sendMailToCompetitorFirstStage = async (email, name, sede) => {
     console.log(email);
     // <a href="${urlReset}">${urlReset}</a>
     const htmlContentUser = `
-                <div>                    
-                    <h3 style="font-family: sans-serif; margin: 15px 15px;">SANTANA SUENA</h3>
-                    <h4 style="font-family: sans-serif; margin: 15px 15px;">Estimado${name} Hemos recibido tu inscripción. Pronto estaremos revisando tus datos y el video que nos proporcionaste. 
-                    Pronto te comunicamos si eres seleccionado para la final la sede ${sede}. Felicidades por ser parte de SANTANA SUENA.</h4>
-                 
-					             
-                    <div style=" max-width: 550px;">
-                        <p style="padding: 10px 0px;">
-                            www.santanasuena.com
-                            Responsable:Dr. Martín Sandoval Gómez Director y Co-fundador del
-                            Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz
-                            A.C.”
-                            Tel: 3173826632 Ext. 105 Autlán de Navarro, Jalisco, C.P. 48903.
-                            tiopatlanextli@hotmail.com
-                            NOTA IMPORTANTE: <b>TIOPA TLANEXTLI</b> es una Asociación Civil
-                            sin fines de lucro, la intención en este concurso es meramente
-                            de carácter cultural y en homenaje al benefactor y co-fundador
-                            de esta institución. No contamos con los derechos para manejo de
-                            la imagen, ni de la música de <b>CARLOS SANTANA</b>
-                            Este programa es sin fines políticos, ni afiliación partidista
-                            ni religiosa, es exclusivamente con fines culturales.
-                        </p>
-                        
-                            
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>🎉🎊SANTANA SUENA🎉🎊</title>
+      <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+      <style>
+        body {
+          font-family: 'Roboto', sans-serif;
+        }
+        
+        .notificacion {
+          border: 2px solid #000;
+          border-radius: 10px;
+          padding: 20px;
+          margin: 20px;
+        }
+    
+        .notificacion .header {
+          text-align: center;
+          margin-bottom: 20px;
+          position: relative;
+        }
+    
+        .notificacion .header img {
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: 0 auto;
+          box-shadow: 0 0 10px rgba(0,0,0,0.5);
+          border-radius: 10px;
+        }
+    
+        .notificacion .header h2 {
+          font-size: 24px;
+          margin-bottom: 5px;
+        }
+    
+        .notificacion .header p {
+          font-size: 14px;
+          margin-bottom: 0;
+        }
+    
+        .notificacion .contenido p {
+          font-size: 16px;
+          line-height: 1.5;
+          margin-bottom: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="notificacion">
+        <div class="header">
+          <img src="https://mountainsantanasuena.s3.us-east-2.amazonaws.com/santanaBanner1.png" alt="Imagen de encabezado">
+          <h2>Tu inscripción se realizó correctamente</h2>
+         
+        </div>
+        <div class="contenido">
+          <p>Estimado ${name} Hemos recibido tu inscripción. Pronto estaremos revisando tus datos y el video que nos proporcionaste. </p>
+          <p> Enseguida te comunicamos si eres seleccionado para la final la sede ${sede}. Felicidades por ser parte de SANTANA SUENA</p>
           
-                    </div>
-				</div>`;
+          <div style="font-family: Arial, sans-serif; color: #333;">
+            <h1 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #007bff; margin-top: 40px; text-align: center;">
+            🎉🎊¡Santana Suena!🎉🎊
+              
+            </h1>
+            <p style="font-size: 18px; line-height: 1.5em; margin-top: 30px;">
+              <a href="https://www.santanasuena.com" style="color: #007bff; text-decoration: none;">www.santanasuena.com</a><br><br>
+              <strong style="color: #007bff;">Responsable:</strong> Dr. Martín Sandoval Gómez<br>
+              <strong style="color: #007bff;">Director y Co-fundador del Centro Comunitario y de Salud Tiopa Tlanextli “Santuario de Luz A.C.”</strong><br>
+              <strong style="color: #007bff;">Tel:</strong> 3173826632 Ext. 105<br>
+              <strong style="color: #007bff;">Autlán de Navarro, Jalisco, C.P. 48903.</strong><br>
+              <strong style="color: #007bff;">tiopatlanextli@hotmail.com</strong><br><br>
+              <em style="color: #007bff;">NOTA IMPORTANTE:</em> TIOPA TLANEXTLI es una Asociación Civil sin fines de lucro, la intención en este concurso es meramente de carácter cultural y en homenaje al benefactor y co-fundador de esta institución. No contamos con los derechos para manejo de la imagen, ni de la música de CARLOS SANTANA. Este programa es sin fines políticos, ni afiliación partidista ni religiosa, es exclusivamente con fines culturales.
+            </p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>`;
 
     await sendEmail.sendEmail(
       email,
