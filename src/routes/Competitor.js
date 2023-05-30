@@ -10,7 +10,8 @@ const {
     decline,
     selectToFinalSedeLocal,
     deselectToFinalSedeLocal,
-    sendMailTofinalists
+    sendMailTofinalists,
+    pruebaEmail
  } = require('../controllers/Competitor.controller.js');
 
 router.route("/create").post(uploadFileMultiple, createCompetitor);
@@ -25,5 +26,6 @@ router.route('/edit/decline/').post(auth,decline);
 router.route('/edit/selectLocalFinalist/').post(auth,selectToFinalSedeLocal);
 router.route('/edit/deselectToFinalSedeLocal/').post(auth, deselectToFinalSedeLocal);
 router.route('/edit/sendMailTofinalists/').post(auth,sendMailTofinalists);
+router.route('/pruebaEmail/').post(pruebaEmail);
 
 module.exports = router;
