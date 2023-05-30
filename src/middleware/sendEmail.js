@@ -2,9 +2,9 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = {};
 
-sendEmail.sendEmail = (emailAdmin,action,htmlContent,service) => {
+sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 	try {
-		const transporter = nodemailer.createTransport({
+		const transporter = await nodemailer.createTransport({
 			host: process.env.HOST_EMAIL,
 			port: process.env.PORT_EMAIL,
 			secure: false,
@@ -17,13 +17,13 @@ sendEmail.sendEmail = (emailAdmin,action,htmlContent,service) => {
 			}
 		})
 	
-		const info = transporter.sendMail({
+		const info = await transporter.sendMail({
 			from:` ${service} <${process.env.USER_EMAIL}>`,
 			to: emailAdmin,
 			subject: action,
 			html: htmlContent,
 		})
-		
+		console.log(info)
 		return info;
 	} catch (error) {
 		console.log(error)
