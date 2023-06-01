@@ -4,6 +4,7 @@ const sendEmail = {};
 
 sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 	try {
+
 		const transporter = await nodemailer.createTransport({
 			host: process.env.HOST_EMAIL,
 			port: process.env.PORT_EMAIL,
@@ -23,6 +24,7 @@ sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 			subject: action,
 			html: htmlContent,
 		})
+		transporter.close()
 		console.log(info)
 		return info;
 	} catch (error) {

@@ -126,7 +126,7 @@ ParticipanteCtrl.pruebaEmail = async (res) => {
   try {
   console.log('fdfd')
     sendMailToCompetitorFirstStage('fractalestudiomx@gmail.com', 'Martín Rivera')
-    
+    return'OMG';
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
