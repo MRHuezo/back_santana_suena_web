@@ -13,9 +13,8 @@ sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 				user: process.env.USER_EMAIL,
 				pass: process.env.PASS_EMAIL
 			},
-			tls: {
-				rejectUnauthorize: false
-			}
+			
+            allowInternalNetworkInterfaces: false
 		})
 	
 		const info = await transporter.sendMail({
@@ -24,8 +23,9 @@ sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 			subject: action,
 			html: htmlContent,
 		})
-		transporter.close()
-		console.log(info)
+		
+		
+		transporter.close();
 		return info;
 	} catch (error) {
 		console.log(error)

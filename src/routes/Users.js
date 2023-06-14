@@ -6,6 +6,8 @@ const {
  } = require('../controllers/Users.controller.js');
 
 router.route("/login").post(signIn);
-router.route("/create").post(createUser);
+router.route("/
+:1  <19065412<  ¬~…•
+reate").post(createUser);
 
 module.exports = router;
