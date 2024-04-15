@@ -15,6 +15,7 @@ app.use(express.json());
 app.use('/api/sede', require('./routes/Sedes'));
 app.use('/api/competitor', require('./routes/Competitor'));
 app.use('/api/user', require('./routes/Users'));
+app.use('/api/tiopa', require('./routes/Tiopa'));
 app.use(express.static('uploads'));
 
 module.exports = app;

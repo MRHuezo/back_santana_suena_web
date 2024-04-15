@@ -2,6 +2,7 @@ const subir = {};
 const multer = require("multer");
 const aws = require("aws-sdk");
 const multerS3 = require("multer-s3");
+const path = require('path');
 
 aws.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS,
@@ -10,6 +11,64 @@ aws.config.update({
 });
 
 const s3 = new aws.S3();
+
+const obtenerArchivosEnCarpeta = (carpeta) => {
+  return new Promise((resolve, reject) => {
+    s3.listObjectsV2({
+      Bucket: process.env.NAME_BUCKET_AMS_TIOPA,
+      Prefix: carpeta
+    }, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        const archivosOrganizados ={};
+
+        data.Contents.forEach(obj => {
+          const ruta = obj.Key.split('/'); // Dividir la ruta en partes por cada "/"
+          let actual = archivosOrganizados;
+
+          // Recorrer las partes de la ruta, creando las carpetas si no existen
+          for (let i = 0; i < ruta.length - 1; i++) {
+            if (!actual[ruta[i]]) {
+              actual[ruta[i]] = {};
+            }
+            actual = actual[ruta[i]];
+          }
+
+          // Agregar el archivo a la carpeta
+          const nombreArchivo = ruta[ruta.length - 1];
+          if(nombreArchivo !== ""){
+            actual[nombreArchivo] = {
+              nombre: nombreArchivo,
+              url: `https://${process.env.NAME_BUCKET_AMS_TIOPA}.s3.${process.env.AWS_REGION}.amazonaws.com/${obj.Key}`
+            };
+          }
+          
+        });
+
+        resolve(archivosOrganizados);
+        
+      }
+    });
+  });
+};
+function guardarEnArchivos(data, ruta = '') {
+  data.forEach(item => {
+      const carpeta = path.join(ruta, item.carpeta);
+      fs.mkdirSync(carpeta, { recursive: true });
+
+      item.subcarpetas.forEach(subcarpeta => {
+          const subcarpetaPath = path.join(carpeta, subcarpeta.nombre);
+          fs.mkdirSync(subcarpetaPath, { recursive: true });
+
+          subcarpeta.archivos.forEach(archivo => {
+              fs.writeFileSync(path.join(subcarpetaPath, archivo.nombre), archivo.url);
+          });
+      });
+  });
+}
+
+// Guardar archivos en la estructura de carpetas
 
 //Filtros que se aceptaran en los archivos
 const fileFilter = (req, file, cb) => {
@@ -85,4 +144,5 @@ subir.uploadInscription = multer(configuracionMulter).fields([
 
 subir.uploadFile = multer(configuracionMulterInFilter).single("file");
 
-module.exports = subir;
+
+module.exports = {subir, obtenerArchivosEnCarpeta};

@@ -25,7 +25,7 @@ sendEmail.sendEmail = async (emailAdmin,action,htmlContent,service) => {
 			html: htmlContent,
 		})
 		transporter.close()
-		console.log(info)
+		
 		return info;
 	} catch (error) {
 		console.log(error)

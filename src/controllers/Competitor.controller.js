@@ -7,7 +7,7 @@ const { default: mongoose } = require("mongoose");
 
 ParticipanteCtrl.uploadFileMultiple = async (req, res, next) => {
   try {
-    await uploadFileAws.uploadInscription(req, res, function (err) {
+    await uploadFileAws.subir.uploadInscription(req, res, function (err) {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: err.message });
@@ -22,7 +22,7 @@ ParticipanteCtrl.uploadFileMultiple = async (req, res, next) => {
 const deleteImagesAws = async (imagesKeys) => {
   try {
     imagesKeys.forEach(async (imageKey) => {
-      await uploadFileAws.eliminarImagen(imageKey);
+      await uploadFileAws.subir.eliminarImagen(imageKey);
     });
   } catch (error) {
     console.log(error);
@@ -447,7 +447,7 @@ ParticipanteCtrl.selectToFinalSedeLocal = async (req, res) => {
       { _id: id_competitor },
       { status: "SELECCIONADO" }
     );
-    res
+    res 
       .status(200)
       .json({
         message: "SE HA SELECCIONADO A ESTE PARTICPANTE COMO FINALISTA ",
