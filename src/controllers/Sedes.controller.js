@@ -44,7 +44,7 @@ SedeCtrl.editSede = async(req, res) => {
 }
 SedeCtrl.querySedes = async(req, res) => {
     try {
-        const sedes = await modelSede.find().sort({main: -1});
+        const sedes = await modelSede.find({edicion: "SEGUNDA"}).sort({main: -1});
         res.status(200).json({ sedes: sedes });
     } catch (error) {
         res.status(500).json({ message: error.message });

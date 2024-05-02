@@ -279,9 +279,10 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
     if (main === "false") {
       $match.$and.push({
         id_sede: mongoose.Types.ObjectId(id_sede),
+        
       });
     }
-    const query = await modelCompetitor.aggregate([
+   /*  const query = await modelCompetitor.aggregate([
       {
         $match,
       },
@@ -289,9 +290,29 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
 
     const competitor = await modelCompetitor.populate(query, {
       path: "id_sede",
-    });
-
-    res.status(200).json({ competitor });
+    }); */
+    const query = await modelCompetitor.aggregate([
+      {
+        $lookup: {
+          from: 'sedes', // Asumiendo que la colección de sedes se llama 'sedes'
+          localField: 'id_sede',
+          foreignField: '_id',
+          as: 'sede_info'
+        }
+      },
+      {
+        $unwind: '$sede_info' // Desenrolla el array para facilitar el filtro
+      },
+      {
+        $match: {
+          'sede_info.edicion': 'SEGUNDA' // Filtra donde la edición de la sede es 'SEGUNDA'
+        }
+      },
+      {
+        $match // Agrega los filtros previamente definidos
+      }
+    ]);
+    res.status(200).json({ competitor:query });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
