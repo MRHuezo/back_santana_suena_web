@@ -44,7 +44,22 @@ SedeCtrl.editSede = async(req, res) => {
 }
 SedeCtrl.querySedes = async(req, res) => {
     try {
-        const sedes = await modelSede.find({edicion: "SEGUNDA"}).sort({main: -1});
+
+        const { edicion} = req.params;
+        
+        let edicion_letter = "";
+        switch (edicion) {
+            case '2023':
+                edicion_letter = "PRIMERA";
+                break;
+            case '2024':
+                edicion_letter = "SEGUNDA";
+                break;
+            default:
+                break;
+        }
+    
+        const sedes = await modelSede.find({edicion: edicion_letter}).sort({main: -1});
         res.status(200).json({ sedes: sedes });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -54,8 +69,22 @@ SedeCtrl.querySedes = async(req, res) => {
 
 SedeCtrl.queryGetSedeCompetitors = async(req, res) => {
     try {
-        const {id_name} = req.params;
-        const sede = await modelSede.findOne({id_name});
+        const {id_name, edicion} = req.params;
+        
+        let edicion_letter = "";
+        switch (edicion) {
+            case '2023':
+                edicion_letter = "PRIMERA";
+                break;
+            case '2024':
+                edicion_letter = "SEGUNDA";
+                break;
+            default:
+                break;
+        }
+       
+        const sede = await modelSede.findOne({id_name: id_name, edicion: edicion_letter});
+      
         const competitors = await modelCompetitor.find({id_sede: sede._id});
         res.status(200).json({sede, competitors});
     } catch (error) {
