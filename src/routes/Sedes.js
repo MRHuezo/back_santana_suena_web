@@ -10,7 +10,7 @@ const {
 
 router.route("/crear").post(createSede);
 router.route("/edit").post(editSede);
-router.route("/consultarSedes").get(querySedes);
-router.route("/oneSedeCompetitors/:id_name").get(queryGetSedeCompetitors);
+router.route("/consultarSedes/:edicion").get(querySedes);
+router.route("/oneSedeCompetitors/:id_name/:edicion").get(queryGetSedeCompetitors);
 
 module.exports = router;

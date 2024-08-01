@@ -30,9 +30,10 @@ const deleteImagesAws = async (imagesKeys) => {
 };
 ParticipanteCtrl.createCompetitor = async (req, res) => {
   try {
+   
     const { body, files } = req;
     const { pay, personal_identify, photo } = files;
-
+   
     const data = {
       ...body,
       pay_key: pay[0].key,
@@ -43,7 +44,7 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
       photo: photo[0].location,
       status: "INSCRITO",
     };
-
+  
     if (
       data.name === "" ||
       data.id_sede === "" ||
@@ -67,36 +68,41 @@ ParticipanteCtrl.createCompetitor = async (req, res) => {
       return;
     }
 
-    const existCurp = await modelCompetitor.find({ curp: data.curp });
-    const existEmail = await modelCompetitor.find({ email: data.email });
 
+const sedeId = mongoose.Types.ObjectId(data.id_sede);
+
+const existCurp = await modelCompetitor.find({
+  curp: data.curp
+});
+
+const existEmail = await modelCompetitor.find({
+  email: data.email
+});
+
+const filteredCurp = existCurp.filter(item => item.id_sede.equals(sedeId));
+const filteredEmail = existEmail.filter(item => item.id_sede.equals(sedeId));
+
+    
     const keyImages = [pay[0].key, personal_identify[0].key, photo[0].key];
     let objectUpd = {};
-    if (existCurp.length > 0 && existCurp.status !== "RECHAZADO") {
+    if (filteredCurp.length > 0 && filteredCurp[0].status !== "RECHAZADO" ||
+    filteredEmail.length > 0 && filteredEmail[0].status !== "RECHAZADO") {
+     
       deleteImagesAws(keyImages);
       res.status(400).json({
         resp: "error",
-        message: "Ya se registró un participante con esta CURP.",
+        message: "Ya se registró un participante con los datos proporcionados.",
       });
-
+     
       return;
     } else {
       objectUpd = { curp: data.curp };
     }
-    if (existEmail.length > 0 && existCurp.status !== "RECHAZADO") {
-      deleteImagesAws(keyImages);
-      res.status(400).json({
-        resp: "error",
-        message: "Ya se registró un participante con este email.",
-      });
-      return;
-    } else {
-      objectUpd = { ...objectUpd, email: data.email };
-    }
+   
 
     if (
-      (existEmail.length > 0 && existCurp.status === "RECHAZADO") ||
-      (existCurp.length > 0 && existCurp.status === "RECHAZADO")
+      (filteredEmail.length > 0 && filteredEmail[0].status === "RECHAZADO")
+    
     ) {
       await modelCompetitor.findByIdAndUpdate(objectUpd, data);
     }
@@ -255,6 +261,7 @@ const sendMailToCompetitorFirstStage = async (email, name, sede) => {
 
 ParticipanteCtrl.queryParticipantes = async (req, res) => {
   try {
+    
     const { main, id_sede, search } = req.query;
 
     let $match = {
@@ -312,6 +319,7 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
         $match // Agrega los filtros previamente definidos
       }
     ]);
+   
     res.status(200).json({ competitor:query });
   } catch (error) {
     console.log(error);
@@ -321,14 +329,19 @@ ParticipanteCtrl.queryParticipantes = async (req, res) => {
 
 ParticipanteCtrl.queryOnlyOne = async (req, res) => {
   try {
-    const { id_name } = req.params;
+    const { id_name, id_sede  } = req.params;
+    console.log(id_name, id_sede)
     const name = id_name.replace("-", " ");
+    let edicion_letter = "";
+    
+  
     const competitor = await modelCompetitor.findOne({
       name: { $regex: ".*" + name + ".*", $options: "i" },
+      id_sede:  mongoose.Types.ObjectId(id_sede)
     }).populate("id_sede");
     res.status(200).json({ competitor });
   } catch (error) {
-    console.log(error);
+    console.log(error); 
     res.status(500).json({ message: error.message });
   }
 };

@@ -19,7 +19,7 @@ router.route("/create").post(uploadFileMultiple, createCompetitor);
 router.route("/get").get(queryParticipantes);
 router.route("/get/main/").get(queryParticipantes);
 router.route("/get/main/:competitor").get(queryParticipantes);
-router.route("/get/main/idname/:id_name").get(queryOnlyOne);
+router.route("/get/main/idname/:id_name/:id_sede").get(queryOnlyOne);
 router.route("/get/sede/:id_sede").get(queryParticipantes);
 router.route("/get/:competitor/:id_sede").get(queryParticipantes);
 

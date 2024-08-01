@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+.wwebjs_cache/
+.wwebjs_auth/
+.wwebjs_auth/session/Default/Cache/Cache_Data/
+.wwebjs_auth/session/Default/Code Cache/js/
+.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/
+.wwebjs_auth/session/Default/Local Storage/leveldb/
+.wwebjs_auth/session/Default/Service Worker/CacheStorage/
