@@ -1,11 +1,13 @@
 const fileAws = require("../middleware/awsFile");
 const sendEmail = require("../middleware/sendEmail");
-const { getQrCode, getSessionData, sendMessage } = require("../middleware/whatsapp");
+const { getQrCode, getSessionData, sendMessage, sendMessageWithImage,sendMessageWithMultipleImages } = require("../middleware/whatsapp");
 const multer = require('multer');
 const xlsx = require('xlsx');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path'); // Importamos path
+const { MessageMedia } = require('whatsapp-web.js'); // Asegúrate de importar MessageMedia
+
 
 const url = 'https://graph.facebook.com/v20.0/112831671869077/messages';
 const accessToken = 'EAASUSnz4zIsBO4hhKpV2Tk1QLc5ukQqAAjxxIwXCbjzjpvApSK2sVihVrL6fdO129BkNqAHCxZBWlHR0wVjxxNogC7pRlI5ZB2K7zodtfya8p4GSdxzfOTYyiJUPk2ZBY6NIYGzoQicFZAt4g5Kpbwzwj2rGibQqsyoIw1enKCGcz2H2aijDHpOYK9J1ulc5eAMjlV38MqTzVprV2LxmmlGf2ZCZAEWCpS1rsZD';
@@ -16,6 +18,7 @@ const TiopaCtrl = {};
 
 TiopaCtrl.getFiles = async (req, res) => {
     try {
+        
         const files = await fileAws.obtenerArchivosEnCarpeta('FilesToGaleria');
         res.status(200).json({ files: files });
     } catch (error) {
@@ -105,75 +108,120 @@ TiopaCtrl.sendEmail = async (req, res) => {
 };
 
 TiopaCtrl.uploadXls = [
-    upload.single('file'),
+    upload.fields([{ name: 'excelFile' }, { name: 'imageFiles' }]), // Cambiar para recibir múltiples archivos de imagen
     async (req, res) => {
         const { nameColumns, message } = req.body;
 
+        // Verificar que se haya proporcionado un mensaje
+        if (!message) {
+            return res.status(400).send('No message provided');
+        }
+
         try {
-            const filePath = req.file.path;
+            const filePath = req.files['excelFile'][0].path; // Usar el archivo de Excel
             const workbook = xlsx.readFile(filePath);
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const rows = xlsx.utils.sheet_to_json(sheet);
-
+           
             let results = [];
-            const splitNamesColumns = nameColumns.split(',');
-            
-            for (const row of rows) {
-                
-                 const phoneNumber = row[splitNamesColumns[0]];
-                 const name = row[splitNamesColumns[1]];
-                 const dato3 = row[splitNamesColumns[2]];
-                 const dato4 = row[splitNamesColumns[3]];
+           
+            const splitNamesColumns = JSON.parse(nameColumns);
+            const imageFiles = req.files['imageFiles']; // Obtener todos los archivos de imagen
 
+            // Crear un mapa de imágenes por nombre de archivo
+        /*     const imageMap = {};
+            if (imageFiles) {
+                imageFiles.forEach(image => {
+                    const fileName = path.basename(image.originalname, path.extname(image.originalname));
+                    const imageData = fs.readFileSync(image.path);
+                    const base64Image = imageData.toString('base64');
+                    imageMap[fileName] = new MessageMedia('image/png', base64Image); // Cambia 'image/png' según el tipo de imagen
+                });
+            }
+ */ 
+            const mediaArray = [];
+            imageFiles.forEach(image => {
+                const fileName = path.basename(image.originalname, path.extname(image.originalname));
+                const imageData = fs.readFileSync(image.path);
+                const base64Image = imageData.toString('base64');
+                const media= new MessageMedia('image/png', base64Image); // Cambia 'image/png' según el tipo de imagen
+                mediaArray.push(media);
+            });
+            
+
+            /* for (const row of rows) {
+                const phoneNumber = row[splitNamesColumns[0].toString()];
+                const name = row[splitNamesColumns[1].toString()];
+                
                 const personalizedMessage = message.replace('{name}', name);
-                let sent = false;
-                let responseMessage = '';
-                let statusMessage = {};
-                try {
-                    // Enviar mensaje usando el cliente de WhatsApp
-                    statusMessage = await sendMessage(phoneNumber, personalizedMessage);
-                    responseMessage = 'Message sent successfully';
-                } catch (error) {
-                    responseMessage = error.message;
-                   console.log(error)
-                    
-                }
+   
+                // Verificar si hay una imagen correspondiente
+                const media = imageMap[name];
+      
+                // Enviar el mensaje con la imagen si existe, o solo el mensaje si no
+                const statusMessage = media 
+                    ? await sendMessageWithImage(phoneNumber, personalizedMessage, media)
+                    : await sendMessage(phoneNumber, personalizedMessage);
+
                 results.push({
                     Name: name,
                     PhoneNumber: phoneNumber,
                     statusMessage: statusMessage.message,
                     Sent: statusMessage.success ? 'Yes' : 'No'
                 });
+            } */
+
+                for (const row of rows) {
+                    const phoneNumber = row[splitNamesColumns[0].toString()];
+                    const name = row[splitNamesColumns[1].toString()];
+                    
+                    const personalizedMessage = message.replace('{name}', name);
+           
+                    // Enviar el mensaje con las imágenes si existen, o solo el mensaje si no
+                    let statusMessage;
+                   
+                        statusMessage = mediaArray.length > 0 
+                            ? await sendMessageWithMultipleImages(phoneNumber, personalizedMessage, mediaArray[0])
+                            : await sendMessage(phoneNumber, personalizedMessage);
+                        console.log(statusMessage);
+                        results.push({
+                            Name: name,
+                            PhoneNumber: phoneNumber,
+                            statusMessage: statusMessage.message,
+                            Sent: statusMessage.success ? 'Yes' : 'No'
+                        });
+                    
+                }
+    
+                const newWorkbook = xlsx.utils.book_new();
+                const newWorksheet = xlsx.utils.json_to_sheet(results);
+                xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'Results');
                 
-            } 
-            
-          const newWorkbook = xlsx.utils.book_new();
-            const newSheet = xlsx.utils.json_to_sheet(results);
-            xlsx.utils.book_append_sheet(newWorkbook, newSheet, 'Results');
+                // Guardar el archivo Excel de resultados
+                const outputFilePath = path.join(__dirname, 'error_results.xlsx');
+                xlsx.writeFile(newWorkbook, outputFilePath);
+                
+                // Enviar el archivo como respuesta
+                res.download(outputFilePath, 'error_results.xlsx', (err) => {
+                    if (err) {
+                        console.error('Error downloading file:', err);
+                        res.status(500).send('Error downloading file');
+                    } else {
+                        // Eliminar el archivo después de que se haya enviado
+                        fs.unlink(outputFilePath, (err) => {
+                            if (err) console.error('Error deleting file:', err);
+                        });
+                    }
+                });
 
-            const resultFilePath = path.join(__dirname, '../uploads', `results_${Date.now()}.xlsx`);
-            xlsx.writeFile(newWorkbook, resultFilePath);
-
-            res.download(resultFilePath, 'results.xlsx', (err) => {
-                if (err) {
-                    console.error('Error downloading file:', err);
-                    res.status(500).send('Error downloading file');
-                } else {
-                    // Optionally, delete the file after download
-                    fs.unlink(resultFilePath, (unlinkErr) => {
-                        if (unlinkErr) {
-                            console.error('Error deleting file:', unlinkErr);
-                        }
-                    });
-                } 
-            });
         } catch (error) {
             console.error('Error processing file:', error);
             res.status(500).send('Error processing file');
         }
     }
 ];
+
 
 TiopaCtrl.initializeWhatsApp = (req, res) => {
     res.status(200).json({ message: 'WhatsApp client initialized' });

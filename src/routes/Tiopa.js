@@ -2,7 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const TiopaCtrl = require("../controllers/Tiopa.controller");
 
-router.get("/files", TiopaCtrl.getFiles);
+router.get("/getFiles", TiopaCtrl.getFiles);
 router.post("/sendEmail", TiopaCtrl.sendEmail);
 router.post("/uploadXls", TiopaCtrl.uploadXls);
 router.post("/initializeWhatsApp", TiopaCtrl.initializeWhatsApp);

@@ -1,3 +1,2 @@
-2024/07/31-20:33:25.361 ac03 Reusing MANIFEST /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
-2024/07/31-20:33:25.363 ac03 Recovering log #48
-2024/07/31-20:33:25.363 ac03 Reusing old log /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Local Storage/leveldb/000048.log 
+2024/08/27-17:34:43.865 15103 Creating DB /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Local Storage/leveldb since it was missing.
+2024/08/27-17:34:43.911 15103 Reusing MANIFEST /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001

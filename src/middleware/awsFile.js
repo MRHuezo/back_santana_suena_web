@@ -19,6 +19,7 @@ const obtenerArchivosEnCarpeta = (carpeta) => {
       Prefix: carpeta
     }, (err, data) => {
       if (err) {
+        console.log("Error",err)
         reject(err);
       } else {
         const archivosOrganizados ={};

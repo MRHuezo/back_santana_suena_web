@@ -1,3 +1,2 @@
-2024/08/01-06:57:02.321 8003 Reusing MANIFEST /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Session Storage/MANIFEST-000001
-2024/08/01-06:57:02.323 8003 Recovering log #3
-2024/08/01-06:57:02.329 8003 Reusing old log /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Session Storage/000003.log 
+2024/08/27-17:40:34.888 6603 Creating DB /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Session Storage since it was missing.
+2024/08/27-17:40:34.964 6603 Reusing MANIFEST /Users/mrhuezo/Documents/SantanaSuena/back_santana_suena_web/.wwebjs_auth/session/Default/Session Storage/MANIFEST-000001

@@ -102,7 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
-
+uploads/
 .wwebjs_cache/
 .wwebjs_auth/
 .wwebjs_auth/session/Default/Cache/Cache_Data/
